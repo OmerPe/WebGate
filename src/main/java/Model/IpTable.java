@@ -4,11 +4,11 @@ import java.io.*;
 import java.util.*;
 
 public class IpTable {
-    static HashMap<Site, Boolean> siteList = new HashMap<>();
+    static HashMap<String, Boolean> siteList = new HashMap<>();
 
     //block IP addresses
     public void BlockIP(Site site){
-        if(siteList.containsKey(site) && siteList.get(site)){
+        if(siteList.containsKey(site.getDomain()) && siteList.get(site.getDomain())){
             System.out.println("site already blocked");
             return;
         }
@@ -26,13 +26,13 @@ public class IpTable {
                 e.printStackTrace();
             }
         }
-        siteList.put(site,true);
+        siteList.put(site.getDomain(),true);
     }
 
 
     //unblock IP addresses
     public void unBlockIP(Site site){
-        if(siteList.containsKey(site) && !siteList.get(site)){
+        if(siteList.containsKey(site.getDomain()) && !siteList.get(site.getDomain())){
             System.out.println("Model.Site is not blocked");
             return;
         }
@@ -49,7 +49,7 @@ public class IpTable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            siteList.put(site,false);
+            siteList.put(site.getDomain(),false);
         }
 
     }
@@ -68,16 +68,12 @@ public class IpTable {
                 System.out.println("File is empty");
                 return;
             }
-            String line = scanner.nextLine();
-            int size = Integer.parseInt(line);
-            Site site;
-            for(int i=0;i<size;i++){
-                site = Site.readSiteFromFile(scanner);
-                line = scanner.nextLine();
-                if(line.equals("1")){
-                    siteList.put(site,true);
+            while(scanner.hasNext()){
+                String[] line = scanner.nextLine().split(",");
+                if(line[1].equals("1")){
+                    siteList.put(line[0],true);
                 }else{
-                    siteList.put(site,false);
+                    siteList.put(line[0],false);
                 }
             }
 
@@ -101,10 +97,9 @@ public class IpTable {
             FileWriter fwrtr = new FileWriter(file,false); //if you want to open in "append" mode change to true
             Formatter frmtr = new Formatter(fwrtr);
 
-            frmtr.format("%d\n",siteList.size()); //write size
-            for (Site site :
+            for (String siteName :
                     siteList.keySet()) {
-                frmtr.format("%s%c\n",site.getFileString(),siteList.get(site)? '1':'0');
+                frmtr.format("%s,%c",siteName,siteList.get(siteName)? '1':'0');
             }
 
             frmtr.close();
@@ -116,36 +111,17 @@ public class IpTable {
     }
 
     public Site getSite(String name){
-        for (Site site :
-                siteList.keySet()) {
-            if(name.equals(site.getDomain())){
-                return site;
-            }
+        if(siteList.containsKey(name)){
+            return Model.instance.getSiteHandler().getSite(name);
         }
         return null;
     }
 
-    public void printSiteList(){//for DeBugging
-        for (Site site :
-                siteList.keySet()) {
-            System.out.println(site.getDomain());
-            site.getIps().forEach(System.out::println);
-        }
-    }
-
     public boolean siteExists(String name){
-
-        for (Site site :
-                siteList.keySet()) {
-            if(site.getDomain().equals(name)){
-                return true;
-            }
-        }
-
-        return false;
+        return siteList.containsKey(name);
     }
 
-    public Set<Site> getSiteList(){
+    public Set<String> getSiteList(){
         return siteList.keySet();
     }
 
@@ -153,7 +129,7 @@ public class IpTable {
         if(!this.siteExists(site.getDomain())){
             return false;
         }else{
-            return siteList.get(site);
+            return siteList.get(site.getDomain());
         }
     }
 }

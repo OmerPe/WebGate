@@ -17,13 +17,17 @@ public class Model {
     private final SiteHandler siteHandler;
 
     private static final String CONFIG_FILE = "config.csv";
-    private static final String SITES_BLOCKED_FILE = "blocked.csv";
-    private static final String NETWORK_USERS_FILE = "userConfig.csv";
+    private static final String SITES_BLOCKED_FILE = "blockedSites.csv";
+    private static final String USER_HANDLER_FILE = "userHandler.csv";
+    private static final String USERS_FILE = "users.csv";
+    private static final String SITES_FILE = "sites.csv";
 
     private static void FileCheckUp(){ //making sure all the files exists, if not creates them
         File config = new File(CONFIG_FILE);
-        File sites = new File(SITES_BLOCKED_FILE);
-        File users = new File(NETWORK_USERS_FILE);
+        File siteHandlerFile = new File(SITES_BLOCKED_FILE);
+        File userHandlerFile = new File(USER_HANDLER_FILE);
+        File users = new File(USERS_FILE);
+        File sites = new File(SITES_FILE);
 
         try {
             if(config.createNewFile()){
@@ -33,16 +37,28 @@ public class Model {
                 System.out.println("config file approved");
             }
 
-            if(sites.createNewFile()){
-                System.out.println("blocked sites file Created");
+            if(siteHandlerFile.createNewFile()){
+                System.out.println("blocked siteHandlerFile file Created");
             }else{
-                System.out.println("blocked sites file approved");
+                System.out.println("blocked siteHandlerFile file approved");
+            }
+
+            if(userHandlerFile.createNewFile()){
+                System.out.println("userHandlerFile file Created");
+            }else{
+                System.out.println("userHandlerFile file approved");
             }
 
             if(users.createNewFile()){
                 System.out.println("users file Created");
             }else{
                 System.out.println("users file approved");
+            }
+
+            if(sites.createNewFile()){
+                System.out.println("sites file Created");
+            }else{
+                System.out.println("sites file approved");
             }
 
         } catch (IOException e) {
@@ -57,7 +73,7 @@ public class Model {
         pcap = new PcapMain();
         siteHandler = new SiteHandler();
 
-        this.userHandler.loadFile(getUserFileString());
+        this.userHandler.loadFile(getUserHandlerFileString());
     }
 
     public void start(){
@@ -92,9 +108,13 @@ public class Model {
         return SITES_BLOCKED_FILE;
     }
 
-    public String getUserFileString(){
-        return NETWORK_USERS_FILE;
+    public String getUserHandlerFileString(){
+        return USER_HANDLER_FILE;
     }
+
+    public String getUsersFile() {return USERS_FILE;}
+
+    public String getSitesFile() {return SITES_FILE;}
 
     public SiteHandler getSiteHandler() {
         return siteHandler;

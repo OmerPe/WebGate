@@ -53,7 +53,7 @@ public class AppUI extends JFrame{
 
         String blocked_site_file = Model.instance.getBlockedSiteFileString();
         String config_file = Model.instance.getConfString();
-        String user_file = Model.instance.getUserFileString();
+        String user_file = Model.instance.getUserHandlerFileString();
 
         currentPanel = "welcome";
         siteDefaultListModel = new DefaultListModel<>();
@@ -243,7 +243,7 @@ public class AppUI extends JFrame{
                 Model.instance.getIptable().WriteToFile(Model.instance.getBlockedSiteFileString());
                 break;
             case "users":
-                Model.instance.getUserHandler().saveFile(Model.instance.getUserFileString());
+                Model.instance.getUserHandler().saveFile(Model.instance.getUserHandlerFileString());
                 break;
             case "statistics":
                 break;
