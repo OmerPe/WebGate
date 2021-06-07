@@ -13,9 +13,12 @@ public class Model {
     private final IpTable iptable;
     private final PcapMain pcap;
 
-    private static final String CONFIG_FILE = "config.txt";
-    private static final String SITES_BLOCKED_FILE = "blocked.txt";
-    private static final String NETWORK_USERS_FILE = "userConfig.txt";
+
+    private final SiteHandler siteHandler;
+
+    private static final String CONFIG_FILE = "config.csv";
+    private static final String SITES_BLOCKED_FILE = "blocked.csv";
+    private static final String NETWORK_USERS_FILE = "userConfig.csv";
 
     private static void FileCheckUp(){ //making sure all the files exists, if not creates them
         File config = new File(CONFIG_FILE);
@@ -52,6 +55,7 @@ public class Model {
         userHandler = new UserHandler();
         iptable = new IpTable();
         pcap = new PcapMain();
+        siteHandler = new SiteHandler();
 
         this.userHandler.loadFile(getUserFileString());
     }
@@ -90,5 +94,9 @@ public class Model {
 
     public String getUserFileString(){
         return NETWORK_USERS_FILE;
+    }
+
+    public SiteHandler getSiteHandler() {
+        return siteHandler;
     }
 }

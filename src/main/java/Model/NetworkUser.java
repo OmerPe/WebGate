@@ -126,33 +126,34 @@ public class NetworkUser {
     public String fileString() {
         StringBuilder sb = new StringBuilder();
         int size = this.getBlockedSites().size();
-        sb.append(this.getName()).append("\n").append(this.getMac()).append("\n").append(this.getIpAddr()).append("\n");
-        sb.append(this.trustFactor).append("\n");
-        sb.append(size).append("\n");
+        sb.append(this.getName()).append(",").append(this.getMac()).append(",").append(this.getIpAddr()).append(",");
+        sb.append(this.trustFactor).append(",");
+        sb.append(size).append("\\.");
         for (Site site :
                 this.getBlockedSites()) {
-            sb.append(site.getFileString());
+            sb.append(site.getDomain()).append("\\.");
         }
+        sb.deleteCharAt(sb.length()-1);
+        sb.append("\n");
 
         return sb.toString();
     }
 
     public static NetworkUser readUserFromFile(Scanner scanner) {
-        String name = scanner.nextLine();
-        String mac;
-        String ip;
-        float trustF;
+        String[] line = scanner.nextLine().split(",");
+        String name = line[0];
+        String mac = line[1];
+        String ip = line[2].substring(1);
+        float trustF = Float.parseFloat(line[3]);
         try {
-            mac = scanner.nextLine();
-            ip = scanner.nextLine().substring(1);
             NetworkUser user = new NetworkUser(MacAddress.getByName(mac), (Inet4Address) InetAddress.getByName(ip));
             user.setName(name);
-            trustF = Float.parseFloat(scanner.nextLine());
             user.setTrustFactor(trustF);
             List<Site> blocked = new LinkedList<>();
-            int size = Integer.parseInt(scanner.nextLine());
-            for (int i = 0; i < size; i++) {
-                blocked.add(Site.readSiteFromFile(scanner));
+            String[] siteNameList = line[4].split("\\.");
+            int size = Integer.parseInt(siteNameList[0]);
+            for (int i = 1; i < size; i++) {
+                blocked.add(Model.instance.getIptable().getSite(siteNameList[i]));
             }
             user.setBlockedSites(blocked);
             return user;

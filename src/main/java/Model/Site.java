@@ -30,23 +30,23 @@ public class Site {
 
     public String getFileString(){
         StringBuilder fs = new StringBuilder();
-        fs.append(this.domain.length()).append("\n").append(this.domain).append("\n").append(this.ipList.size()).append("\n");
+        fs.append(this.domain).append(",").append(this.ipList.size()).append("\\.");
         for (String ip :
                 ipList) {
-            fs.append(ip.length()).append("\n").append(ip).append("\n");
+            fs.append(ip).append("\\.");
         }
+        fs.deleteCharAt(fs.length()-1);
+        fs.append("\n");
         return fs.toString();
     }
 
     public static Site readSiteFromFile(Scanner scanner){
-        int len = Integer.parseInt(scanner.nextLine());
-        String line = scanner.nextLine();
-        Site site = new Site(line);
-        len = Integer.parseInt(scanner.nextLine());
-        int tmpInt;
-        for (int i = 0; i<len;i++){
-            tmpInt = Integer.parseInt(scanner.nextLine());//not used for now.
-            site.addIp(scanner.nextLine());
+        String[] line = scanner.nextLine().split(",");
+        Site site = new Site(line[0]);
+        String[] ipList = line[1].split("\\.");
+        int len = Integer.parseInt(ipList[0]);
+        for (int i = 1; i<len;i++){
+            site.addIp(ipList[i]);
         }
         return site;
     }
