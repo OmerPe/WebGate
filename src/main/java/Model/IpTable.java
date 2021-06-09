@@ -12,19 +12,22 @@ public class IpTable {
             System.out.println("site already blocked");
             return;
         }
-        String command;
+
+        String command1;
+        String command2;
         for (String ip :
                 site.getIps()) {
             if(ip.length() > 16){
-                command = "sudo ip6tables-legacy -I INPUT -s " + ip + " -j DROP";
+                command1 = "sudo ip6tables-legacy -I INPUT -s " + ip + " -j DROP";
+                command2 = "sudo ip6tables-legacy -I FORWARD -s " + ip + " -j DROP";
             }else{
-                command = "sudo iptables-legacy -I INPUT -s " + ip + " -j DROP";
+                command1 = "sudo iptables-legacy -I INPUT -s " + ip + " -j DROP";
+                command2 = "sudo iptables-legacy -I FORWARD -s " + ip + " -j DROP";
             }
-            try {
-                Runtime.getRuntime().exec(command);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            execute(command1);
+            execute(command2);
+
         }
         siteList.put(site.getDomain(),true);
     }
@@ -36,19 +39,22 @@ public class IpTable {
             System.out.println("Model.Site is not blocked");
             return;
         }
-        String command;
+        String command1;
+        String command2;
+
         for (String ip :
                 site.getIps()) {
             if(ip.length() > 16){
-                command = "sudo ip6tables-legacy -D INPUT -s " + ip + " -j DROP";
+                command1 = "sudo ip6tables-legacy -D INPUT -s " + ip + " -j DROP";
+                command2 = "sudo ip6tables-legacy -D FORWARD -s " + ip + " -j DROP";
             }else{
-                command = "sudo iptables-legacy -D INPUT -s " + ip + " -j DROP";
+                command1 = "sudo iptables-legacy -D INPUT -s " + ip + " -j DROP";
+                command2 = "sudo iptables-legacy -D FORWARD -s " + ip + " -j DROP";
             }
-            try {
-                Runtime.getRuntime().exec(command);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            execute(command1);
+            execute(command2);
+
             siteList.put(site.getDomain(),false);
         }
 
@@ -130,5 +136,17 @@ public class IpTable {
             return siteList.get(site);
         }
         return false;
+    }
+
+    private void execute(String command){
+        ProcessBuilder builder = new ProcessBuilder("/bin/sh","-c",command);
+        try {
+            Process process = builder.inheritIO().start();
+            process.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 }

@@ -128,7 +128,6 @@ public class AppUI extends JFrame{
                 }
 
                 if (iptable.siteExists(txt)) {
-                    iptable.getSite(domainTxt.getText());
                     if (iptable.isBlocked(txt)) {
                         iptable.unBlockIP(Model.instance.getSiteHandler().getSite(txt));
                         JOptionPane.showMessageDialog(MainPanel, txt + " is unBlocked");
