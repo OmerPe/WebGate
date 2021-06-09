@@ -91,17 +91,18 @@ public class AppUI extends JFrame{
                 String txt = domainTxt.getText();
                 if (!(txt.equals(""))) {
                     Site site;
-                    if (iptable.siteExists(txt)) {
-                        site = iptable.getSite(txt);
-                    } else {
-                        site = new Site(domainTxt.getText());
+                    if(Model.instance.getSiteHandler().containSite(txt)){
+                        site = Model.instance.getSiteHandler().getSite(txt);
+                    }else {
+                        site = new Site(txt);
                         ArrayList<String> tmp = DNSLookUp.lookup(site);
                         if (tmp == null) {
                             JOptionPane.showMessageDialog(MainPanel, txt + " is not a site");
                             return;
                         }
                     }
-                    if (iptable.isBlocked(site)) {
+
+                    if (iptable.isBlocked(txt)) {
                         JOptionPane.showMessageDialog(MainPanel, site.getDomain() + " already Blocked!");
                     } else {
                         iptable.BlockIP(site);
@@ -124,15 +125,15 @@ public class AppUI extends JFrame{
                         return;
                     }
                 }
-                Site site;
+
                 if (iptable.siteExists(txt)) {
-                    site = iptable.getSite(domainTxt.getText());
-                    if (iptable.isBlocked(site)) {
-                        iptable.unBlockIP(site);
-                        JOptionPane.showMessageDialog(MainPanel, site.getDomain() + " is unBlocked");
+                    iptable.getSite(domainTxt.getText());
+                    if (iptable.isBlocked(txt)) {
+                        iptable.unBlockIP(Model.instance.getSiteHandler().getSite(txt));
+                        JOptionPane.showMessageDialog(MainPanel, txt + " is unBlocked");
                         refreshSiteList(siteDefaultListModel);
                     } else {
-                        JOptionPane.showMessageDialog(MainPanel, site.getDomain() + " is not blocked!");
+                        JOptionPane.showMessageDialog(MainPanel, txt + " is not blocked!");
                     }
 
                 } else {
@@ -243,7 +244,7 @@ public class AppUI extends JFrame{
                 Model.instance.getIptable().WriteToFile(Model.instance.getBlockedSiteFileString());
                 break;
             case "users":
-                Model.instance.getUserHandler().saveFile(Model.instance.getUserHandlerFileString());
+                Model.instance.getUserHandler().WriteToFile(Model.instance.getUserHandlerFileString());
                 break;
             case "statistics":
                 break;
@@ -255,9 +256,9 @@ public class AppUI extends JFrame{
     private void refreshSiteList(DefaultListModel<String> list){
         list.removeAllElements();
 
-        Model.instance.getIptable().getSiteList().forEach((d)->{
-            if(Model.instance.getIptable().isBlocked(d)){
-                list.addElement(d.getDomain());
+        Model.instance.getIptable().getSiteList().forEach(site->{
+            if(Model.instance.getIptable().isBlocked(site)){
+                list.addElement(site);
             }
         });
     }
@@ -266,7 +267,7 @@ public class AppUI extends JFrame{
         list.removeAllElements();
 
         Model.instance.getUserHandler().getUserMacList().forEach(mac -> {
-            list.addElement(Model.instance.getUserHandler().getUserByMac(mac).getName());
+            list.addElement(Model.instance.getUserHandler().getUser(mac).getName());
         });
     }
 

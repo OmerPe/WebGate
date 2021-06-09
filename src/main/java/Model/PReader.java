@@ -61,11 +61,11 @@ public class PReader implements Runnable{
                                 user.setName("Router");
                             }
                             //System.out.println(user);
-                            userHandler.addToList(user);
+                            userHandler.addUser(user);
                         }
                     }
                     Model.instance.getStatisticsHandler().addStats(pkt,direction);
-                    System.out.println(Model.instance.getStatisticsHandler().getCurrentStat().toString());
+                    //System.out.println(Model.instance.getStatisticsHandler().getCurrentStat().toString());
 
                 }
             }

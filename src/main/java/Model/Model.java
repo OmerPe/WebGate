@@ -19,14 +19,12 @@ public class Model {
     private static final String CONFIG_FILE = "config.csv";
     private static final String SITES_BLOCKED_FILE = "blockedSites.csv";
     private static final String USER_HANDLER_FILE = "userHandler.csv";
-    private static final String USERS_FILE = "users.csv";
     private static final String SITES_FILE = "sites.csv";
 
     private static void FileCheckUp(){ //making sure all the files exists, if not creates them
         File config = new File(CONFIG_FILE);
         File siteHandlerFile = new File(SITES_BLOCKED_FILE);
         File userHandlerFile = new File(USER_HANDLER_FILE);
-        File users = new File(USERS_FILE);
         File sites = new File(SITES_FILE);
 
         try {
@@ -47,12 +45,6 @@ public class Model {
                 System.out.println("userHandlerFile file Created");
             }else{
                 System.out.println("userHandlerFile file approved");
-            }
-
-            if(users.createNewFile()){
-                System.out.println("users file Created");
-            }else{
-                System.out.println("users file approved");
             }
 
             if(sites.createNewFile()){
@@ -78,6 +70,7 @@ public class Model {
 
     public void start(){
         try {
+            siteHandler.loadFile(SITES_FILE);
             pcap.Start();
         } catch (PcapNativeException e) {
             e.printStackTrace();
@@ -111,8 +104,6 @@ public class Model {
     public String getUserHandlerFileString(){
         return USER_HANDLER_FILE;
     }
-
-    public String getUsersFile() {return USERS_FILE;}
 
     public String getSitesFile() {return SITES_FILE;}
 

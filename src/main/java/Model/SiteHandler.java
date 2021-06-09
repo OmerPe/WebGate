@@ -1,9 +1,11 @@
 package Model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class SiteHandler {
     HashMap<String, Site> siteList = new HashMap<>();
@@ -13,13 +15,17 @@ public class SiteHandler {
     }
 
     public Site getSite(String name) {
-        return siteList.get(name);
+        if(siteList.containsKey(name)){
+            return siteList.get(name);
+        }
+        return null;
     }
 
     public void addSite(Site site) {
         if (!siteList.containsKey(site.getDomain())) {
             siteList.put(site.getDomain(), site);
         }
+        Model.instance.getSiteHandler().WriteToFile(Model.instance.getSitesFile());
     }
 
     public boolean containSite(String name) {
@@ -53,7 +59,21 @@ public class SiteHandler {
     }
 
     public void loadFile(String fileName){
-
+        File file = new File(fileName);
+        if(!file.exists())
+        {
+            System.out.println("Error," + fileName + "does not exists");
+            return;
+        }
+        try {
+            Scanner sc= new Scanner(file);
+            while(sc.hasNextLine()){
+                Site s = Site.readSiteFromFile(sc.nextLine());
+                siteList.put(s.getDomain(),s);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 }

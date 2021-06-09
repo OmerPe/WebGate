@@ -1,5 +1,8 @@
 package Model;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -30,20 +33,20 @@ public class Site {
 
     public String getFileString(){
         StringBuilder fs = new StringBuilder();
-        fs.append(this.domain).append(",").append(this.ipList.size()).append("\\.");
+        fs.append(this.domain).append(",").append(this.ipList.size()).append("|");
         for (String ip :
                 ipList) {
-            fs.append(ip).append("\\.");
+            fs.append(ip).append("|");
         }
         fs.deleteCharAt(fs.length()-1);
         fs.append("\n");
         return fs.toString();
     }
 
-    public static Site readSiteFromFile(Scanner scanner){
-        String[] line = scanner.nextLine().split(",");
-        Site site = new Site(line[0]);
-        String[] ipList = line[1].split("\\.");
+    public static Site readSiteFromFile(String line){
+        String[] split = line.split(",");
+        Site site = new Site(split[0]);
+        String[] ipList = split[1].split("\\|");
         int len = Integer.parseInt(ipList[0]);
         for (int i = 1; i<len;i++){
             site.addIp(ipList[i]);

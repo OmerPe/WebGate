@@ -8,38 +8,42 @@ import java.io.FileWriter;
 import java.util.*;
 
 public class UserHandler {
-    private final HashMap<MacAddress,NetworkUser> users;
+    HashMap<MacAddress, NetworkUser> userList = new HashMap<>();
 
-    public UserHandler(){
-        this.users = new HashMap<>();
+    public HashMap<MacAddress, NetworkUser> getList(){
+        return userList;
     }
 
-    public void addToList(NetworkUser networkUser){
-        if(!users.containsKey(networkUser.getMac())){
-            this.users.put(networkUser.getMac(),networkUser);
+    public NetworkUser getUser(MacAddress mac){
+        return userList.get(mac);
+    }
+
+    public void addUser(NetworkUser user){
+        if(!userList.containsKey(user.getMac())){
+            userList.put(user.getMac(),user);
         }
     }
 
-    public void saveFile(String fileName){
+    public boolean containUser(MacAddress mac){
+        return userList.containsKey(mac);
+    }
 
-        if(users.isEmpty()){
+    public void WriteToFile(String fileName) {
+        if (userList.isEmpty()) {
             return;
         }
-
         File file = new File(fileName);
-        if(!file.exists()){
-            System.out.println("Error,"+fileName+" does not exists");
+        if (!file.exists()) {
+            System.out.println("Error," + fileName + " does not exists");
             return;
         }
-
         try {
-            FileWriter fwrtr = new FileWriter(file,false); //if you want to open in "append" mode change to true
+            FileWriter fwrtr = new FileWriter(file, false); //if you want to open in "append" mode change to true
             Formatter frmtr = new Formatter(fwrtr);
 
-            frmtr.format("%d\n",users.size()); //write size
-            for (MacAddress mac :
-                    users.keySet()) {
-                frmtr.format("%s",users.get(mac).fileString());
+            for (NetworkUser user :
+                    userList.values()) {
+                frmtr.format("%s", user.fileString());
             }
 
             frmtr.close();
@@ -47,6 +51,7 @@ public class UserHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public void loadFile(String fileName){
@@ -58,16 +63,14 @@ public class UserHandler {
         Scanner scanner;
         try {
             scanner = new Scanner(file);
-            if(!scanner.hasNext()){
-                System.out.println("File is empty");
-                return;
-            }
-            String line = scanner.nextLine();
-            int size = Integer.parseInt(line);
-            NetworkUser user;
-            for(int i=0;i<size;i++){
-                user = NetworkUser.readUserFromFile(scanner);
-                this.users.put(user.getMac(),user);
+            while(scanner.hasNext()){
+                NetworkUser user = NetworkUser.readUserFromFile(scanner.nextLine());
+                if(user != null){
+                    userList.put(user.getMac(),user);
+                }else{
+                    System.out.println("Error reading user");
+                }
+
             }
 
         } catch (FileNotFoundException e) {
@@ -75,29 +78,17 @@ public class UserHandler {
         }
     }
 
-    public NetworkUser findByName(String name){
-        for (NetworkUser u :
-                users.values()) {
-            if (u.getName().equals(name)) {
-                return u;
+    public Set<MacAddress> getUserMacList() {
+        return userList.keySet();
+    }
+
+    public NetworkUser findByName(String name) {
+        for (NetworkUser user :
+                userList.values()) {
+            if (user.getName().equals(name)){
+                return user;
             }
         }
         return null;
-    }
-
-    public boolean containUserByMac(MacAddress ma){
-        return users.containsKey(ma);
-    }
-
-    public boolean containUserByUser(NetworkUser user){
-        return users.containsKey(user.getMac());
-    }
-
-    public NetworkUser getUserByMac(MacAddress ma){
-        return this.users.get(ma);
-    }
-
-    public Set<MacAddress> getUserMacList(){
-        return this.users.keySet();
     }
 }

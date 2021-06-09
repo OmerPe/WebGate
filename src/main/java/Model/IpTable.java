@@ -27,6 +27,7 @@ public class IpTable {
             }
         }
         siteList.put(site.getDomain(),true);
+        Model.instance.getSiteHandler().addSite(site);
     }
 
 
@@ -99,7 +100,7 @@ public class IpTable {
 
             for (String siteName :
                     siteList.keySet()) {
-                frmtr.format("%s,%c",siteName,siteList.get(siteName)? '1':'0');
+                frmtr.format("%s,%c\n",siteName,siteList.get(siteName)? '1':'0');
             }
 
             frmtr.close();
@@ -125,11 +126,10 @@ public class IpTable {
         return siteList.keySet();
     }
 
-    public boolean isBlocked(Site site){
-        if(!this.siteExists(site.getDomain())){
-            return false;
-        }else{
-            return siteList.get(site.getDomain());
+    public boolean isBlocked(String site){
+        if(siteList.containsKey(site)){
+            return siteList.get(site);
         }
+        return false;
     }
 }

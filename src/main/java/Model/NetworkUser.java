@@ -18,12 +18,15 @@ public class NetworkUser {
     private List<Site> blockedSites;
     private float trustFactor;
 
+    private boolean isBlocked;
+
     public NetworkUser(MacAddress m, Inet4Address ip) {
         this.mac = m;
         this.ipAddr = ip;
         this.name = m.toString();
         this.trustFactor = 5;
         this.blockedSites = new LinkedList<>();
+        this.isBlocked = false;
     }
 
     public String getName() {
@@ -127,11 +130,11 @@ public class NetworkUser {
         StringBuilder sb = new StringBuilder();
         int size = this.getBlockedSites().size();
         sb.append(this.getName()).append(",").append(this.getMac()).append(",").append(this.getIpAddr()).append(",");
-        sb.append(this.trustFactor).append(",");
-        sb.append(size).append("\\.");
+        sb.append(this.trustFactor).append(",").append(isBlocked?"1":"0").append(",");
+        sb.append(size).append("|");
         for (Site site :
                 this.getBlockedSites()) {
-            sb.append(site.getDomain()).append("\\.");
+            sb.append(site.getDomain()).append("|");
         }
         sb.deleteCharAt(sb.length()-1);
         sb.append("\n");
@@ -139,23 +142,25 @@ public class NetworkUser {
         return sb.toString();
     }
 
-    public static NetworkUser readUserFromFile(Scanner scanner) {
-        String[] line = scanner.nextLine().split(",");
-        String name = line[0];
-        String mac = line[1];
-        String ip = line[2].substring(1);
-        float trustF = Float.parseFloat(line[3]);
+    public static NetworkUser readUserFromFile(String line) {
+        String[] split = line.split(",");
+        String name = split[0];
+        String mac = split[1];
+        String ip = split[2].substring(1);
+        float trustF = Float.parseFloat(split[3]);
+        boolean isBlocked = split[4].equals("1");
         try {
             NetworkUser user = new NetworkUser(MacAddress.getByName(mac), (Inet4Address) InetAddress.getByName(ip));
             user.setName(name);
             user.setTrustFactor(trustF);
             List<Site> blocked = new LinkedList<>();
-            String[] siteNameList = line[4].split("\\.");
+            String[] siteNameList = split[5].split("\\|");
             int size = Integer.parseInt(siteNameList[0]);
             for (int i = 1; i < size; i++) {
                 blocked.add(Model.instance.getIptable().getSite(siteNameList[i]));
             }
             user.setBlockedSites(blocked);
+            user.setBlocked(isBlocked);
             return user;
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -173,20 +178,24 @@ public class NetworkUser {
     }
 
     public void BlockUser(){
-        String command = "sudo iptables-legacy -A FORWARD -s " + getIpAddr().toString().substring(1) + " -j DROP";
-        try {
-            Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(!isBlocked){
+            String command = "sudo iptables-legacy -A FORWARD -s " + getIpAddr().toString().substring(1) + " -j DROP";
+            try {
+                Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void unBlockUser(){
-        String command = "sudo iptables-legacy -D FORWARD -s " + getIpAddr().toString().substring(1) + " -j DROP";
-        try {
-            Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(isBlocked){
+            String command = "sudo iptables-legacy -D FORWARD -s " + getIpAddr().toString().substring(1) + " -j DROP";
+            try {
+                Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -202,5 +211,14 @@ public class NetworkUser {
 
     public void setTrustFactor(float trustFactor){
         this.trustFactor = trustFactor;
+    }
+
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
     }
 }

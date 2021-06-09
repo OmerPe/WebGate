@@ -8,7 +8,7 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 public class StatisticsHandler {
-    private final NetworkStatistics current;
+    private NetworkStatistics current;
     private final Vector<NetworkStatistics> statisticsLog = new Vector<>(60);
     private final Timer timer;
 
@@ -30,10 +30,10 @@ public class StatisticsHandler {
         current.addOverAllTraffic(size);
         EthernetPacket epkt = (EthernetPacket) packet;
         //adding the packet size to the user (either send or recieve)
-        if(Model.instance.getUserHandler().containUserByMac(epkt.getHeader().getSrcAddr())){
-            current.addUserSendTraffic(Model.instance.getUserHandler().getUserByMac(epkt.getHeader().getSrcAddr()),size);
-        }else if(Model.instance.getUserHandler().containUserByMac(epkt.getHeader().getDstAddr())){
-            current.addUserReceiveTraffic(Model.instance.getUserHandler().getUserByMac(epkt.getHeader().getDstAddr()),size);
+        if(Model.instance.getUserHandler().containUser(epkt.getHeader().getSrcAddr())){
+            current.addUserSendTraffic(Model.instance.getUserHandler().getUser(epkt.getHeader().getSrcAddr()),size);
+        }else if(Model.instance.getUserHandler().containUser(epkt.getHeader().getDstAddr())){
+            current.addUserReceiveTraffic(Model.instance.getUserHandler().getUser(epkt.getHeader().getDstAddr()),size);
         }
         EtherType type = epkt.getHeader().getType();
         if(type == EtherType.ARP){
@@ -100,7 +100,7 @@ public class StatisticsHandler {
 
     private void reset(){
         statisticsLog.add(this.current);
-        current.resetStats();
+        current = new NetworkStatistics();
     }
 
 }
