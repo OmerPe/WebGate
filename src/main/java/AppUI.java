@@ -100,6 +100,7 @@ public class AppUI extends JFrame{
                             JOptionPane.showMessageDialog(MainPanel, txt + " is not a site");
                             return;
                         }
+                        Model.instance.getSiteHandler().addSite(site);
                     }
 
                     if (iptable.isBlocked(txt)) {

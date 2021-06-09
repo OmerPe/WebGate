@@ -27,7 +27,6 @@ public class IpTable {
             }
         }
         siteList.put(site.getDomain(),true);
-        Model.instance.getSiteHandler().addSite(site);
     }
 
 
