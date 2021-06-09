@@ -46,21 +46,12 @@ public class PReader implements Runnable{
                     MacAddress srcMac = ((EthernetPacket)pkt).getHeader().getSrcAddr();
                     if(((EthernetPacket)pkt).getHeader().getType() == EtherType.IPV4){
                         Inet4Address srcAddr = ((IpV4Packet.IpV4Header)pkt.getPayload().getHeader()).getSrcAddr();
-                        //System.out.println("mac : " + srcMac + "\n ip : "+srcAddr);
                         if(contains(subnet,srcAddr.getHostAddress())){
                             direction = "outbound";
                             NetworkUser user = new NetworkUser(srcMac,srcAddr);
-                            try {
-                                if(InetAddress.getLocalHost().equals(srcAddr)){
-                                    user.setName("WebGate");
-                                }
-                            } catch (UnknownHostException e) {
-                                e.printStackTrace();
-                            }
                             if(defaultGateway.equals(srcAddr.toString())){
                                 user.setName("Router");
                             }
-                            //System.out.println(user);
                             userHandler.addUser(user);
                         }
                     }
