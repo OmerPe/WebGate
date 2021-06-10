@@ -100,6 +100,7 @@ public class AppUI extends JFrame{
                             JOptionPane.showMessageDialog(MainPanel, txt + " is not a site");
                             return;
                         }
+                        Model.instance.getSiteHandler().addSite(site);
                     }
 
                     if (iptable.isBlocked(txt)) {
@@ -127,7 +128,6 @@ public class AppUI extends JFrame{
                 }
 
                 if (iptable.siteExists(txt)) {
-                    iptable.getSite(domainTxt.getText());
                     if (iptable.isBlocked(txt)) {
                         iptable.unBlockIP(Model.instance.getSiteHandler().getSite(txt));
                         JOptionPane.showMessageDialog(MainPanel, txt + " is unBlocked");

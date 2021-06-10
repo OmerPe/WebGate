@@ -15,7 +15,7 @@ public class NetworkUser {
     private String name;
     private final MacAddress mac;
     private Inet4Address ipAddr;
-    private List<Site> blockedSites;
+    private List<String> blockedSites;
     private float trustFactor;
 
     private boolean isBlocked;
@@ -49,11 +49,11 @@ public class NetworkUser {
         this.ipAddr = ipAddr;
     }
 
-    public List<Site> getBlockedSites() {
+    public List<String> getBlockedSites() {
         return blockedSites;
     }
 
-    public void setBlockedSites(List<Site> blockedSites) {
+    public void setBlockedSites(List<String> blockedSites) {
         this.blockedSites = blockedSites;
     }
 
@@ -72,7 +72,7 @@ public class NetworkUser {
                 e.printStackTrace();
             }
         }
-        this.blockedSites.add(site);
+        this.blockedSites.add(site.getDomain());
     }
 
     public void UnblockSite(Site site) {
@@ -90,17 +90,11 @@ public class NetworkUser {
                 e.printStackTrace();
             }
         }
-        this.blockedSites.remove(site);
+        this.blockedSites.remove(site.getDomain());
     }
 
     public Site getSiteByName(String name) {
-        for (Site s :
-                this.blockedSites) {
-            if (s.getDomain().equals(name)) {
-                return s;
-            }
-        }
-        return null;
+        return Model.instance.getSiteHandler().getSite(name);
     }
 
     @Override
@@ -132,9 +126,9 @@ public class NetworkUser {
         sb.append(this.getName()).append(",").append(this.getMac()).append(",").append(this.getIpAddr()).append(",");
         sb.append(this.trustFactor).append(",").append(isBlocked?"1":"0").append(",");
         sb.append(size).append("|");
-        for (Site site :
+        for (String site :
                 this.getBlockedSites()) {
-            sb.append(site.getDomain()).append("|");
+            sb.append(site).append("|");
         }
         sb.deleteCharAt(sb.length()-1);
         sb.append("\n");
@@ -153,11 +147,11 @@ public class NetworkUser {
             NetworkUser user = new NetworkUser(MacAddress.getByName(mac), (Inet4Address) InetAddress.getByName(ip));
             user.setName(name);
             user.setTrustFactor(trustF);
-            List<Site> blocked = new LinkedList<>();
+            List<String> blocked = new LinkedList<>();
             String[] siteNameList = split[5].split("\\|");
             int size = Integer.parseInt(siteNameList[0]);
             for (int i = 1; i < size; i++) {
-                blocked.add(Model.instance.getIptable().getSite(siteNameList[i]));
+                blocked.add(siteNameList[i]);
             }
             user.setBlockedSites(blocked);
             user.setBlocked(isBlocked);
@@ -169,8 +163,8 @@ public class NetworkUser {
     }
 
     public boolean siteExists(String txt) {
-        for (Site site : this.getBlockedSites()) {
-            if (site.getDomain().equals(txt)) {
+        for (String site : this.getBlockedSites()) {
+            if (site.equals(txt)) {
                 return true;
             }
         }
@@ -179,6 +173,7 @@ public class NetworkUser {
 
     public void BlockUser(){
         if(!isBlocked){
+            isBlocked = true;
             String command = "sudo iptables-legacy -A FORWARD -s " + getIpAddr().toString().substring(1) + " -j DROP";
             try {
                 Runtime.getRuntime().exec(command);
@@ -190,6 +185,7 @@ public class NetworkUser {
 
     public void unBlockUser(){
         if(isBlocked){
+            isBlocked = true;
             String command = "sudo iptables-legacy -D FORWARD -s " + getIpAddr().toString().substring(1) + " -j DROP";
             try {
                 Runtime.getRuntime().exec(command);

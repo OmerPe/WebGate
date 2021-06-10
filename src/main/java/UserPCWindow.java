@@ -37,11 +37,17 @@ public class UserPCWindow extends JFrame{
                     if (user.siteExists(txt)) {
                         JOptionPane.showMessageDialog(MainPanel, txt + " already blocked");
                     } else {
-                        Site site = new Site(txt);
-                        ArrayList<String> tmp = DNSLookUp.lookup(site);
-                        if (tmp == null) {
-                            JOptionPane.showMessageDialog(MainPanel, txt + " is not a site");
-                            return;
+                        Site site;
+                        if(Model.instance.getSiteHandler().containSite(txt)){
+                            site = Model.instance.getSiteHandler().getSite(txt);
+                        }else{
+                            site = new Site(txt);
+                            ArrayList<String> tmp = DNSLookUp.lookup(site);
+                            if (tmp == null) {
+                                JOptionPane.showMessageDialog(MainPanel, txt + " is not a site");
+                                return;
+                            }
+                            Model.instance.getSiteHandler().addSite(site);
                         }
                         user.BlockSite(site);
                         JOptionPane.showMessageDialog(MainPanel, txt + " blocked");
@@ -85,7 +91,7 @@ public class UserPCWindow extends JFrame{
         blockedDefaultListModel.removeAllElements();
 
         user.getBlockedSites().forEach((d)->{
-            blockedDefaultListModel.addElement(d.getDomain());
+            blockedDefaultListModel.addElement(d);
         });
     }
 

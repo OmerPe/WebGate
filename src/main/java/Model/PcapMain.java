@@ -2,12 +2,15 @@ package Model;
 
 import org.pcap4j.core.*;
 import org.pcap4j.packet.Packet;
+import org.pcap4j.util.MacAddress;
 import org.pcap4j.util.NifSelector;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.security.spec.ECField;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -54,6 +57,15 @@ public class PcapMain {
             }
         }
         System.out.println("");
+
+        try {
+            NetworkUser tmpusr = new NetworkUser(MacAddress.getByAddress(NetworkInterface.getByName(nif.getName()).getHardwareAddress()) ,
+                    (Inet4Address) nif.getAddresses().get(0).getAddress());
+            tmpusr.setName("WebGate");
+            Model.instance.getUserHandler().addUser(tmpusr);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
 
         PcapHandle.Builder phb =
                 new PcapHandle.Builder(nif.getName())
