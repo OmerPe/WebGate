@@ -122,6 +122,7 @@ public class PcapMain {
 
             Scanner s = new Scanner(new BufferedReader(new InputStreamReader(p.getInputStream())));
             s.nextLine();
+            s.nextLine();
             subnet = s.next();
             System.out.println(subnet);
             p.waitFor();

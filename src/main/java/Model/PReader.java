@@ -57,6 +57,7 @@ public class PReader implements Runnable{
                     }
                     Model.instance.getStatisticsHandler().addStats(pkt,direction);
                     //System.out.println(Model.instance.getStatisticsHandler().getCurrentStat().toString());
+                    System.out.println(pkt);
 
                 }
             }
