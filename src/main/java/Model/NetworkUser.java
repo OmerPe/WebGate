@@ -185,7 +185,7 @@ public class NetworkUser {
 
     public void unBlockUser(){
         if(isBlocked){
-            isBlocked = true;
+            isBlocked = false;
             String command = "sudo iptables-legacy -D FORWARD -s " + getIpAddr().toString().substring(1) + " -j DROP";
             try {
                 Runtime.getRuntime().exec(command);
